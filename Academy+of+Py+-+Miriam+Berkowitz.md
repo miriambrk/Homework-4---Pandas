@@ -1,11 +1,11 @@
 
 # Academy of Py Data Analysis - Miriam Berkowitz<br>
 ### Observed Trends:<br>
-1)Schools that spent more per student had lower overall passing rates than the schools that spent the least. The schools that spent the least per student had the highest overall passing rates.
+1)  Schools that spent more per student had lower overall passing rates than the schools that spent the least. The schools that spent the least per student had the highest overall passing rates.
 <br>
-2)Larger schools had worse passing rates than smaller schools.
+2)  Larger schools had worse passing rates than smaller schools.
 <br>
-3)Charter schools had better passing rates than district schools.
+3)  Charter schools had better passing rates than district schools.
 
 
 
@@ -17,8 +17,8 @@ import pandas as pd
 
 ```python
 #store filepath in variable
-file1 = "raw_data/schools_complete.csv"
-file2 = "raw_data/students_complete.csv"
+file1 = "../raw_data/schools_complete.csv"
+file2 = "../raw_data/students_complete.csv"
 
 #Read CSV files
 schools_df = pd.read_csv(file1, encoding = "utf-8")
@@ -57,18 +57,6 @@ reading_passed_table = students_df.loc[students_df["reading_score"]> 70,:]
 percent_passed_reading = round((reading_passed_table["Student ID"].count() / total_students),2) * 100
 percent_passed_reading
 
-
-```
-
-
-
-
-    83.0
-
-
-
-
-```python
 #compute overall passing rate -- average of math and reading passage averages
 overall_passing_rate = (percent_passed_math + percent_passed_reading)/2
 overall_passing_rate
@@ -77,7 +65,7 @@ overall_passing_rate
 
 
 
-    77.5
+    83.0
 
 
 
@@ -177,7 +165,12 @@ students_df = students_df.rename(columns={"school":"school_name"})
 ```python
 #merge the school and students table, joining on school_name; inner join
 merge_table = pd.merge(schools_df, students_df, on="school_name")
-merge_table.head()
+
+#compute average reading and math scores by school name
+sch_avg_scores = pd.DataFrame(students_df.groupby("school_name").mean())
+
+sch_avg_scores = sch_avg_scores.reset_index()
+sch_avg_scores = sch_avg_scores.drop('Student ID', axis=1)
 ```
 
 
@@ -293,111 +286,12 @@ merge_table.head()
 
 
 ```python
-#compute average reading and math scores by school name
-sch_avg_scores = pd.DataFrame(students_df.groupby("school_name").mean())
-
-sch_avg_scores = sch_avg_scores.reset_index()
-sch_avg_scores = sch_avg_scores.drop('Student ID', axis=1)
-
-```
-
-
-```python
 #make copy of schools data frame; then add the rest of the data for each school
 school_summary_df = schools_df
 
 #merge avg reading and math into school summary
 school_summary_df = school_summary_df.merge(sch_avg_scores,on="school_name")
-
-school_summary_df.head()
 ```
-
-
-
-
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>School ID</th>
-      <th>school_name</th>
-      <th>type</th>
-      <th>size</th>
-      <th>budget</th>
-      <th>reading_score</th>
-      <th>math_score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>Huang High School</td>
-      <td>District</td>
-      <td>2917</td>
-      <td>1910635</td>
-      <td>81.182722</td>
-      <td>76.629414</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>Figueroa High School</td>
-      <td>District</td>
-      <td>2949</td>
-      <td>1884411</td>
-      <td>81.158020</td>
-      <td>76.711767</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>Shelton High School</td>
-      <td>Charter</td>
-      <td>1761</td>
-      <td>1056600</td>
-      <td>83.725724</td>
-      <td>83.359455</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>Hernandez High School</td>
-      <td>District</td>
-      <td>4635</td>
-      <td>3022020</td>
-      <td>80.934412</td>
-      <td>77.289752</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>Griffin High School</td>
-      <td>Charter</td>
-      <td>1468</td>
-      <td>917500</td>
-      <td>83.816757</td>
-      <td>83.351499</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
@@ -1039,12 +933,6 @@ school_summary_df
 </div>
 
 
-
-
-```python
-#Write to CSV, without Pandas index, with header
-school_summary_df.to_csv("school_summary.csv", index=False, header=True)
-```
 
 ### Top Performing Schools (By Passing Rate)
 
@@ -2246,75 +2134,7 @@ school_means = school_groups.mean()
 school_means.drop('Total Students', axis=1,inplace=True)
 
 school_means.reset_index(inplace=True)
-school_means
 ```
-
-
-
-
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Size Bins</th>
-      <th>Average Math Score</th>
-      <th>Average Reading Score</th>
-      <th>% Passing Math</th>
-      <th>% Passing Reading</th>
-      <th>% Overall Passing</th>
-      <th>Spending Range</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>83.664898</td>
-      <td>83.892148</td>
-      <td>90.676736</td>
-      <td>92.778720</td>
-      <td>91.727728</td>
-      <td>605.000000</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>83.359224</td>
-      <td>83.898984</td>
-      <td>90.175120</td>
-      <td>93.217267</td>
-      <td>91.696193</td>
-      <td>596.200000</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>76.956733</td>
-      <td>80.966636</td>
-      <td>64.302528</td>
-      <td>78.324559</td>
-      <td>71.313543</td>
-      <td>643.571429</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
@@ -2408,6 +2228,7 @@ school_means = school_groups.mean()
 
 #remove unneeded columns
 school_means.drop('Total Students', axis=1,inplace=True)
+del school_means['Spending Range']
 school_means
 ```
 
@@ -2437,11 +2258,9 @@ school_means
       <th>% Passing Math</th>
       <th>% Passing Reading</th>
       <th>% Overall Passing</th>
-      <th>Spending Range</th>
     </tr>
     <tr>
       <th>School Type</th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -2457,7 +2276,6 @@ school_means
       <td>90.363226</td>
       <td>93.052812</td>
       <td>91.708019</td>
-      <td>599.500000</td>
     </tr>
     <tr>
       <th>District</th>
@@ -2466,77 +2284,6 @@ school_means
       <td>64.302528</td>
       <td>78.324559</td>
       <td>71.313543</td>
-      <td>643.571429</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-school_means.reset_index(inplace=True)
-school_means.set_index('School Type', inplace=True)
-school_means
-```
-
-
-
-
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Average Math Score</th>
-      <th>Average Reading Score</th>
-      <th>% Passing Math</th>
-      <th>% Passing Reading</th>
-      <th>% Overall Passing</th>
-      <th>Spending Range</th>
-    </tr>
-    <tr>
-      <th>School Type</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Charter</th>
-      <td>83.473852</td>
-      <td>83.896421</td>
-      <td>90.363226</td>
-      <td>93.052812</td>
-      <td>91.708019</td>
-      <td>599.500000</td>
-    </tr>
-    <tr>
-      <th>District</th>
-      <td>76.956733</td>
-      <td>80.966636</td>
-      <td>64.302528</td>
-      <td>78.324559</td>
-      <td>71.313543</td>
-      <td>643.571429</td>
     </tr>
   </tbody>
 </table>
